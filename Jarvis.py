@@ -1,6 +1,6 @@
 import os  # For working with file paths
 import openai  # For using the OpenAI API
-from pvporcupine import Porcupine
+import pvporcupine 
 import pvleopard  # For wake word detection and speech-to-text
 from gtts import gTTS  # For text-to-speech synthesis
 from playsound import playsound  # For playing the synthesized audio
@@ -9,11 +9,13 @@ from playsound import playsound  # For playing the synthesized audio
 openai.api_key = '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'  # Replace with your OpenAI API key
 
 # Configure PicoVoice Porcupine wake word detection
-wake_word_path = os.path.join('path/to/porcupine/resources', 'wake_word.ppn')
-porcupine = Porcupine(wake_word_path=wake_word_path)
-
+wake_word_path = 'home/pi/Jarvis/hey-jarvis_en_raspberry-pi_v2_2_0.ppn'
+porcupine = pvporcupinecreate(
+  access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==',
+  keywords=['picovoice', 'bumblebee']
+)
 # Configure PicoVoice Leopard STT
-leopard = Leopard()
+leopard = pvleopard()
 
 # Define the wake word to trigger Leopard STT
 wake_word = 'hey assistant'
