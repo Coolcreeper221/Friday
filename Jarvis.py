@@ -18,7 +18,8 @@ import sys
 import psutil
 import logging
 
-
+PICOVOICEKEY = 'insert key'
+aikey = 'insert key'
 
 import subprocess
 
@@ -37,10 +38,9 @@ def restart_program():
 
 
 
+cobra = pvcobra.create(access_key=PICOVOICEKEY)
 
-cobra = pvcobra.create(access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==')
-
-openai.api_key = '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'  
+openai.api_key = aikey
 voice_file = "voice.wav"
 filename = voice_file
 chunk = 1024
@@ -58,7 +58,7 @@ frames = []
 
 wake_word_path = 'C:/Users/tata_/Downloads/Jarvis-main/Jarvis-main/hey-jarvis_en_raspberry-pi_v2_2_0.ppn'
 porcupine = pvporcupine.create(
-  access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==',keyword_paths=['Hey-Friday_en_windows_v2_2_0.ppn'],
+  access_key=PICOVOICEKEY,keyword_paths=['Hey-Friday_en_windows_v2_2_0.ppn'],
   keywords=['Hey Jarvis']
 )
 
