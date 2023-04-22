@@ -1,54 +1,169 @@
-import os  # For working with file paths
-import openai  # For using the OpenAI API
+import os  
+import openai  
 import pvporcupine 
-import pvleopard  # For wake word detection and speech-to-text
-from gtts import gTTS  # For text-to-speech synthesis
-from playsound import playsound  # For playing the synthesized audio
+import speech_recognition as sr
+import struct
+import pyaudio
+import pvporcupine
+import time
+import pvcobra
+import wave
+from pydub import AudioSegment
+from pydub.playback import play
+from gtts import gTTS  
+from playsound import playsound 
 
-# Set up the OpenAI API credentials
-openai.api_key = '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'  # Replace with your OpenAI API key
 
-# Configure PicoVoice Porcupine wake word detection
-wake_word_path = 'home/pi/Jarvis/hey-jarvis_en_raspberry-pi_v2_2_0.ppn'
-porcupine = pvporcupinecreate(
-  access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==',
-  keywords=['picovoice', 'bumblebee']
+import sys
+import psutil
+import logging
+
+
+
+import subprocess
+
+def copy2clip(txt):
+    cmd='echo '+txt.strip()+'|clip'
+    return subprocess.check_call(cmd, shell=True)
+
+def restart_program():
+   
+    
+
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+
+
+
+
+
+
+cobra = pvcobra.create(access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==')
+
+openai.api_key = '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'  
+voice_file = "voice.wav"
+filename = voice_file
+chunk = 1024
+FORMAT = pyaudio.paInt16
+channels = 1
+sample_rate = 44100
+p = pyaudio.PyAudio()
+stream = p.open(format=FORMAT,
+                channels=channels,
+                rate=sample_rate,
+                input=True,
+                output=True,
+                frames_per_buffer=chunk)
+frames = []
+
+wake_word_path = 'C:/Users/tata_/Downloads/Jarvis-main/Jarvis-main/hey-jarvis_en_raspberry-pi_v2_2_0.ppn'
+porcupine = pvporcupine.create(
+  access_key='/I+3vpA9ZSiKVCE/Fixqo5HiG2oW0lzxEuoNAlpPGTrG/JUGDx5RzA==',keyword_paths=['Hey-Friday_en_windows_v2_2_0.ppn'],
+  keywords=['Hey Jarvis']
 )
-# Configure PicoVoice Leopard STT
-leopard = pvleopard()
 
-# Define the wake word to trigger Leopard STT
+r = sr.Recognizer()
+
+
+
 wake_word = 'hey assistant'
+pa = pyaudio.PyAudio()
+audio_stream = pa.open(
+                    rate=porcupine.sample_rate,
+                    channels=1,
+                    format=pyaudio.paInt16,
+                    input=True,
+                    frames_per_buffer=porcupine.frame_length)
 
-# Loop for wake word detection and voice input capture
 print("Listening for wake word ('{}')...".format(wake_word))
-while True:
-    keyword_index = porcupine.process()
-    if keyword_index >= 0:
-        print('Wake word detected! Speak your prompt:')
-        prompt = leopard.transcribe()
 
-        # Generate a text message using OpenAI GPT-3.5 API
+while True:
+    pcm = audio_stream.read(porcupine.frame_length)
+    pcm = struct.unpack_from("h" * porcupine.frame_length, pcm)
+    
+    keyword_index = porcupine.process(pcm)
+    if keyword_index >= 0:
+        stream.start_stream()
+       
+        
+        
+        
+        
+        prompt = None
+
+
+        start_time = time.time()
+
+        while True:
+            pcm = audio_stream.read(cobra.frame_length)
+            pcm = struct.unpack_from("h"*cobra.frame_length,pcm)
+            voice_probability = cobra.process(pcm)
+
+            data = stream.read(chunk)
+            frames.append(data)
+
+            if voice_probability <= 0.5:
+                elapsed_time = time.time() - start_time
+                if elapsed_time >= 2.0:
+                    stream.stop_stream()
+                   
+                    
+                    wf = wave.open(filename, "wb")
+                    wf.setnchannels(channels)
+                    wf.setsampwidth(p.get_sample_size(FORMAT))
+                    wf.setframerate(sample_rate)
+                    wf.writeframes(b"".join(frames))
+                    
+                    transcript = ' '
+
+                    with sr.AudioFile(filename) as source:
+                        text = None
+                        try:  
+                            text = r.recognize_google(r.record(source),None,"en-US",0,False)
+                        except TypeError as e:
+                            transcript = ' say "sorry i didnt get that"'
+                        transcript = text
+                        print(transcript)
+                        
+                       
+                        
+                    
+                        
+                        if not isinstance(transcript, str):
+                            transcript = ' say "sorry i didnt get that"'
+                    wf.close()
+                   
+                    os.remove('voice.wav')
+                    prompt = 'your name will be Friday and your job is an AI Voice Assistant, here is your text, ' + transcript 
+
+                    
+                    break
+
+            else:
+                start_time = time.time()
+
+
+
+
+        
+       
         response = openai.Completion.create(
-            prompt=prompt,
-            max_tokens=100,
-            n=1,
-            stop=None,
-            temperature=0.5
-        )
+            model="text-davinci-003",prompt=prompt, temperature = 0,n=1)
         if 'choices' in response and len(response['choices']) > 0:
             message = response['choices'][0]['text']
-            print(f'Generated message: {message}')
+            copy2clip(message)
 
-            # Use gTTS to synthesize speech with Australian English accent and save as audio file
-            tts = gTTS(text=message, lang='en-au')
+            #
+            tts = gTTS(text=message, lang='en', tld='co.za')
             tts.save('generated_message.mp3')
 
-            # Play the synthesized audio using playsound library
-            playsound('generated_message.mp3')
+          
+            audio_file = AudioSegment.from_file('generated_message.mp3',format='mp3')
+            
+            play(audio_file)
+            restart_program()
 
-            # Remove the temporary audio file
-            os.remove('generated_message.mp3')
+          
         else:
             print('Failed to generate message using OpenAI GPT-3.5 API.')
         print("Listening for wake word ('{}')...".format(wake_word))
