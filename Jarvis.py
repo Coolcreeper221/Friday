@@ -11,16 +11,19 @@ from pydub import AudioSegment
 from pydub.playback import play
 from gtts import gTTS  
 from playsound import playsound 
-
+import yaml
 
 import sys
 import psutil
 import logging
 
-PICOVOICEKEY = 'insert key'
-aikey = 'insert key'
+PICOVOICEKEY = read_yaml()[0]['picovoice']
+aikey = read_yaml()[0]['openai']
 
 import subprocess
+def read_yaml():
+    with open('config.yaml', "r") as f:
+        return yaml.safe_load(f)
 
 def copy2clip(txt):
     cmd='echo '+txt.strip()+'|clip'
