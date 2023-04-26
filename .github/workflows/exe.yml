@@ -1,9 +1,0 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is compling exe
-on: [push]
-jobs:
-  check-bats-version:
-    runs-on: ubuntu-latest
-    steps:
-       - name: Build EXE from Python Script
-         uses: Nuitka/Nuitka-Action@v0.5
