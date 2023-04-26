@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="node_modules/@picovoice/web-voice-processor/dist/iife/index.js"></script>
+  <script src="node_modules/@picovoice/porcupine-web/dist/iife/index.js"></script>
+  <script src="porcupine_params.js"></script>
+  <script src="papaya_whip.js"></script>
+  <script type="application/javascript">
+    function writeMessage(message) {
+      console.log(message);
+      document.getElementById("status").innerHTML = message;
+    }
+
+    function porcupineErrorCallback(error) {
+      writeMessage(error);
+    }
+
+    function porcupineKeywordCallback(detection) {
+      const time = new Date();
+      const message = `keyword detected at ${time.toLocaleTimeString()}: ${detection.label} (index = ${detection.index})`
+      console.log(message);
+      document.getElementById("result").innerHTML = message;
+    }
+
+    async function startPorcupine(accessKey) {
+      writeMessage("Porcupine is loading. Please wait...");
+      try {
+        let porcupine = await PorcupineWeb.PorcupineWorker.create(
+          accessKey,
+          [
+            PorcupineWeb.BuiltInKeyword.Picovoice, // built-in keyword
+            { // custom keyword with base64-encoded model file
+              label: "Papaya whip",
+              sensitivity: 0.7,
+              base64: papayaWhip,
+              forceWrite: true
+            },
+            {
+              label: "Porcupine",
+              sensitivity: 0.7,
+              publicPath: "porcupine_wasm.ppn",
+              forceWrite: true
+            }
+          ],
+          porcupineKeywordCallback,
+          {
+            base64: modelParams,
+            forceWrite: true
+          },
+        );
+
+        writeMessage("Porcupine worker ready!");
+
+        writeMessage(
+          "WebVoiceProcessor initializing. Microphone permissions requested ..."
+        );
+        await window.WebVoiceProcessor.WebVoiceProcessor.subscribe(porcupine);
+
+        writeMessage("WebVoiceProcessor ready and listening!");
+      } catch (err) {
+        porcupineErrorCallback(err);
+      }
+    }
+  </script>
+</head>
+<body>
+<h1>Porcupine Web Demo</h1>
+<p>This demo uses Porcupine for Web and the WebVoiceProcessor to:</p>
+<ol>
+  <li>
+    Create an instance of Porcupine that listens for:
+    <ul>
+      <li>
+        <b>Picovoice</b> (a built-in keyword, provided by name)
+      </li>
+      <li>
+        <b>Papaya Whip</b> (a custom keyword provided via its base64 representation)
+      </li>
+      <li>
+        <b>Porcupine</b> (another custom keyword provided via a `ppn` file)
+      </li>
+    </ul>
+  </li>
+  <li>
+    Acquire microphone (& ask permission) data stream and convert to voice
+    processing format (16kHz 16-bit linear PCM). The down-sampled audio is
+    forwarded to the Porcupine engine. The audio <i>does not</i> leave the
+    browser: all processing is occurring via the Porcupine WebAssembly code.
+  </li>
+  <li>
+    Listen for keyword detection events from the Porcupine engines and output them to the page.
+  </li>
+</ol>
+After entering the AccessKey, click the "Start Porcupine" button.
+<hr/>
+<label for="accessKey"
+>AccessKey obtained from
+  <a href="https://console.picovoice.ai/">Picovoice Console</a>:</label
+>
+<input type="text" id="accessKey" name="accessKey"/>
+<input
+        type="button"
+        id="submit"
+        value="Start Porcupine"
+        onclick="startPorcupine(document.getElementById('accessKey').value)"
+/>
+<hr/>
+<div id="status"></div>
+<br>
+<div id="result"></div>
+</body>
+</html>

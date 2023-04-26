@@ -1,0 +1,29 @@
+{
+  "name": "porcupine-web-demo",
+  "version": "2.2.0",
+  "description": "A basic demo to show how to use Porcupine for web browsers, using the IIFE version of the library",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "copyppn": "ncp ../../resources/keyword_files/wasm/porcupine_wasm.ppn ./porcupine_wasm.ppn && ncp \"../../resources/keyword_files/wasm/papaya whip_wasm.ppn\" \"./papaya whip_wasm.ppn\"",
+    "postinstall": "yarn copyppn && npx pvbase64 -i ../../lib/common/porcupine_params.pv -o ./porcupine_params.js && npx pvbase64 -i \"./papaya whip_wasm.ppn\" -o papaya_whip.js -n papayaWhip",
+    "start": "http-server -a localhost -p 5000"
+  },
+  "keywords": [
+    "Picovoice",
+    "Porcupine",
+    "browser",
+    "voice ai",
+    "speech recognition"
+  ],
+  "author": "Picovoice Inc",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@picovoice/porcupine-web": "~2.2.0",
+    "@picovoice/web-voice-processor": "~4.0.6"
+  },
+  "devDependencies": {
+    "http-server": "^14.0.0",
+    "ncp": "^2.0.0"
+  }
+}

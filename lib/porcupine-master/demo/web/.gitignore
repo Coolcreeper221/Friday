@@ -1,0 +1,10 @@
+node_modules
+.rts2_cache/
+.idea/
+dist/
+*.log
+.DS_Store
+porcupine_params.js
+porcupine_wasm.ppn
+papaya whip_wasm.ppn
+papaya_whip.js
