@@ -26,13 +26,6 @@ def copy2clip(txt):
     cmd='echo '+txt.strip()+'|clip'
     return subprocess.check_call(cmd, shell=True)
 
-def restart_program():
-   
-    
-
-    python = sys.executable
-    os.execl(python, python, *sys.argv)
-
 
 
 
