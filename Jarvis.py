@@ -100,7 +100,7 @@ while True:
             data = stream.read(chunk)
             frames.append(data)
 
-            if voice_probability <= 0.5:
+            if voice_probability <= 0.2:
                 elapsed_time = time.time() - start_time
                 if elapsed_time >= 2.0:
                     stream.stop_stream()
