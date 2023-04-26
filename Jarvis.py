@@ -4,7 +4,6 @@ import pvporcupine
 import speech_recognition as sr
 import struct
 import pyaudio
-import pvporcupine
 import time
 import pvcobra
 import wave
