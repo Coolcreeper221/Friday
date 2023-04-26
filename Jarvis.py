@@ -56,7 +56,6 @@ stream = p.open(format=FORMAT,
                 frames_per_buffer=chunk)
 frames = []
 
-wake_word_path = 'C:/Users/tata_/Downloads/Jarvis-main/Jarvis-main/hey-jarvis_en_raspberry-pi_v2_2_0.ppn'
 porcupine = pvporcupine.create(
   access_key=PICOVOICEKEY,keyword_paths=['Hey-Friday_en_windows_v2_2_0.ppn'],
   keywords=['Hey Jarvis']
