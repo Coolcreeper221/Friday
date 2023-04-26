@@ -10,20 +10,22 @@ import wave
 from pydub import AudioSegment
 from pydub.playback import play
 from gtts import gTTS  
-from playsound import playsound 
+from playsound import playsound
+
 import yaml
 
 import sys
 import psutil
 import logging
-
-PICOVOICEKEY = read_yaml()[0]['picovoice']
-aikey = read_yaml()[0]['openai']
-
-import subprocess
 def read_yaml():
     with open('config.yaml', "r") as f:
         return yaml.safe_load(f)
+conf = read_yaml()
+PICOVOICEKEY = conf['Keys']['picovoice']
+aikey = conf['Keys']['openai']
+
+import subprocess
+
 
 def copy2clip(txt):
     cmd='echo '+txt.strip()+'|clip'
@@ -155,7 +157,7 @@ while True:
             audio_file = AudioSegment.from_file('generated_message.mp3',format='mp3')
             
             play(audio_file)
-            restart_program()
+           
 
           
         else:
